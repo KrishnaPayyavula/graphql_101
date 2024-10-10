@@ -31,7 +31,75 @@ const resolvers = {
         games: () => games,
         reviews: () => reviews,
         authors: () => authors,
+        review(_,args) {
+            return reviews.find(review => review.id === args.id);
+        },
+        reviewByRating(_,args) {
+            return reviews.filter(review => review.rating === args.rating);
+        },
+        game(_,args) {
+            return games.find(game => game.id === args.id);
+        },
+        author(_,args) {
+            return authors.find(author => author.id === args.id);
+        },
+
     },
+
+    Game: {
+        reviews(parent) {
+            return reviews.filter(review => review.game_id === parent.id);
+        }
+    },
+    Author: {
+        reviews(parent) {
+            return reviews.filter(review => review.author_id === parent.id);
+        }
+    },
+    Review: {
+        game(parent) {
+            return games.find(game => game.id === parent.game_id);
+        },
+        author(parent) {
+            return authors.find(author => author.id === parent.author_id);
+        }
+    },
+
+    Mutation: {
+        deleteGame(_,args) {
+            const index = games.findIndex(game => game.id === args.id);
+            if(index === -1) {
+                return games;
+            }
+            games.splice(index,1);
+            return games;
+        },
+
+        addGame(_,args) {
+            const newGame = {
+                id: Math.floor(Math.random() * 1000).toString(),
+                title: args.game.title,
+                platform: args.game.platform
+            }
+            games.push(newGame);
+            return newGame;
+        },
+
+        updateGame(_,args) {
+            const index = games.findIndex(game => game.id === args.id);
+            if(index === -1) {
+                return null;
+            }
+            games[index] = {
+                id: args.id,
+                title: args.edits.title || games[index].title,
+                platform: args.edits.platform || games[index].platform
+            }
+            return games[index];
+        }
+    }
+
+
 };
 
 
